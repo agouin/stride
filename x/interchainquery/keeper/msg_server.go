@@ -50,6 +50,7 @@ func (k msgServer) SubmitQueryResponse(goCtx context.Context, msg *types.MsgSubm
 			sdk.NewEvent(
 				"query_response",
 				sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+				sdk.NewAttribute(types.AttributeKeyChainId, q.ChainId),
 				sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
 			),
 		})
