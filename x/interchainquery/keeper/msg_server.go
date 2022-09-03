@@ -39,18 +39,21 @@ func (k msgServer) SubmitQueryResponse(goCtx context.Context, msg *types.MsgSubm
 		return &types.MsgSubmitQueryResponseResponse{}, nil // technically this is an error, but will cause the entire tx to fail if we have one 'bad' message, so we can just no-op here.
 	}
 
-	defer ctx.EventManager().EmitEvents(sdk.Events{
-		sdk.NewEvent(
-			sdk.EventTypeMessage,
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
-		),
-		sdk.NewEvent(
-			"query_response",
-			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-			sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
-		),
-	})
+	defer func() {
+		k.Logger(ctx).Info(fmt.Sprintf("[ICQ Resp] query_response event emission: %s", q.Id))
+		ctx.EventManager().EmitEvents(sdk.Events{
+			sdk.NewEvent(
+				sdk.EventTypeMessage,
+				sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+				sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
+			),
+			sdk.NewEvent(
+				"query_response",
+				sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+				sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
+			),
+		})
+	}()
 
 	// ABORT PROCESSING QUERY RESPONSE IF WE EXCEEDED THE TTL
 	k.Logger(ctx).Info(fmt.Sprintf("[ICQ Resp] q: %#v.", q))
