@@ -41,19 +41,12 @@ func (k msgServer) SubmitQueryResponse(goCtx context.Context, msg *types.MsgSubm
 
 	defer func() {
 		k.Logger(ctx).Info(fmt.Sprintf("[ICQ Resp] query_response event emission: %s", q.Id))
-		ctx.EventManager().EmitEvents(sdk.Events{
-			sdk.NewEvent(
-				sdk.EventTypeMessage,
-				sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-				sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
-			),
-			sdk.NewEvent(
-				"query_response",
-				sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
-				sdk.NewAttribute(types.AttributeKeyChainId, q.ChainId),
-				sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
-			),
-		})
+		ctx.EventManager().EmitEvent(sdk.NewEvent(
+			"query_response",
+			sdk.NewAttribute(sdk.AttributeKeyModule, types.AttributeValueCategory),
+			sdk.NewAttribute(types.AttributeKeyChainId, q.ChainId),
+			sdk.NewAttribute(types.AttributeKeyQueryId, q.Id),
+		))
 	}()
 
 	// ABORT PROCESSING QUERY RESPONSE IF WE EXCEEDED THE TTL
